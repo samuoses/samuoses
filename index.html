@@ -91,11 +91,12 @@
 				pivote.numeroVotos(numVotos)
 			};
 			root.creaYcalcula()
-			   root.partidosPoliticos.sort(function(left, right) { return left.numeroVotos() == right.numeroVotos() ? 0 : (left.numeroVotos() < right.numeroVotos() ? 1 : -1) })
+			root.partidosPoliticos.sort(function(left, right) { return left.numeroVotos() == right.numeroVotos() ? 0 : (left.numeroVotos() < right.numeroVotos() ? 1 : -1) })
 		}
 		root.creaYcalcula = function(){
 			for (var i = 0; i < root.partidosPoliticos().length; i++) {
 				var pivote = root.partidosPoliticos()[i]
+				console.log(pivote)
 				pivote.arrayVotos.removeAll()
 				for (var j = 1; j <= root.provinciaElegida().escaños(); j++) {
 					pivote.arrayVotos.push(new resultadospPartido({numeroDivision: j, numeroVotosRelativo: Math.round(pivote.numeroVotos()/j)}))
@@ -117,15 +118,23 @@
 </head>
 <body>
 	<div class="container">
-		<div class="col-lg-12">
+		<div class="col-lg-12 col-md-12 col-sm-12">
+			<h1>Sistema Dhont aplicado a las elecciones andaluzas 2015</h1>
+		</div>
+		<div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 col-lg-offset-3 col-md-offset-3">
 			<div class="row" data-bind="if: datosEldiario">
+				<div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+				<label>Provincia</label>
 				<select class="form-control" data-bind="options: $root.datosEldiario().provincias(), optionsText: 'nombre', value: provinciaElegida, event:{ change: actualizaVotos}"></select>
-			</div>
-			<div class="row" data-bind="if: datosEldiario">
-				<div class="col-lg-4">
-				<label data-bind="text: 'Numero de diputados ' + provinciaElegida().escaños()"></label>
+				</div>
+				<div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+				<label>Numero de parlamentarios</label>
+				<input type="text" class="form-control" disabled data-bind="value: provinciaElegida().escaños">
 				</div>
 			</div>
+			<!--<div class="row" data-bind="if: datosEldiario">
+				<label data-bind="text: 'Numero de diputados de la provincia : ' + provinciaElegida().escaños()"></label>
+			</div>-->
 			<!--<div class="row">
 				<button class="btn btn-info" data-bind="click: creaYcalcula">Calcula reparto</button>
 			</div>-->
@@ -142,11 +151,14 @@
 				</div>
 			</div>-->
 			</br>
+			</div>
+			<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
 			<div data-bind="if: showTable()">
 			<table class="table table-bordered">
 				<tbody>
 					<tr>
 						<td></td>
+						<!--<td>Numero de votos</td>-->
 						<!-- ko foreach: partidosPoliticos()[0].arrayVotos -->
 							<td data-bind="text: $index()+1"></td>
 						<!-- /ko -->
@@ -154,6 +166,7 @@
 					<!-- ko foreach: partidosPoliticos -->
 					<tr>
 							<td data-bind="text: nombrePartido"></td>
+							<!--<td data-bind="text: $data.arrayVotos()[0].numeroVotosRelativo"></td>-->
 							<!-- ko foreach: $data.arrayVotos -->
 								<td data-bind="text: numeroVotosRelativo,css: {'success': $data.esElegido() }"></td>
 							<!-- /ko -->

@@ -3,183 +3,242 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-	<!-- Latest compiled and minified CSS -->
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js" integrity="sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4" crossorigin="anonymous"></script>
+	
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js" integrity="sha384-h0AbiXch4ZDo7tp9hKZ4TsHbi047NrKGLO3SEJAg45jXxnGIfYzk4Si90RDIqNm1" crossorigin="anonymous"></script>
+    
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
 
-<!-- Optional theme -->
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap-theme.min.css">
 
 <!-- Latest compiled and minified JavaScript -->
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+<script src="https://unpkg.com/vue"></script>
+
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
 <script src="http://knockoutjs.com/downloads/knockout-3.3.0.js"></script>
 <script src="knockout.mapping.js"></script>
-<script type="text/javascript">
-	function resultadospPartido(data){
-		this.numeroDivision = data.numeroDivision;
-		this.numeroVotosRelativo = data.numeroVotosRelativo;
-		this.esElegido = ko.observable(false);
-		this.color = ko.observable('#FFFFFF')
-	}
-	function partidoPolitico(data){
-		this.nombrePartido = ko.observable(data.nombre)
-		this.identificador = ko.observable(data.identificador)
-		this.numeroVotos = ko.observable(data.numeroVotos)
-		this.color = ko.observable(data.color)
-		this.arrayVotos = ko.observableArray([])
-	}
-	function gestionDhont(){
-		var root = this;
-		root.numeroDiputados = ko.observable();
-		root.partidosPoliticos = ko.observableArray([])
-		//root.partidosPoliticos.push(new partidoPolitico({nombre:'',numeroVotos:0}))
-		root.showTable=ko.observable(false);
-		root.datosEldiario = ko.observable();
-		root.provinciaElegida = ko.observable();
-		root.datosDado = ko.computed(function() {
-			var resultado = ko.observableArray([])
-			for (var i = 0; i < this.partidosPoliticos().length; i++) {
-				var pivote = this.partidosPoliticos()[i]
-				ko.utils.arrayPushAll(resultado, pivote.arrayVotos())  
-				//resultado.push(resultado().concat(pivote.arrayVotos()))
-			};
-			resultado.sort(function(left, right) { return left.numeroVotosRelativo == right.numeroVotosRelativo ? 0 : (left.numeroVotosRelativo < right.numeroVotosRelativo ? 1 : -1) })
-			return resultado()
-	    }, this);
-	    root.partidosPoliticos.sort(function(left, right) { return left.numeroVotos() == right.numeroVotos() ? 0 : (left.numeroVotos() < right.numeroVotos() ? 1 : -1) })
-
-		$.getJSON("http://elecciones.eldiario.es/autonomicas/andalucia/2015/huelva/data/andaluzas.json", function(allData){
-			root.datosEldiario(ko.mapping.fromJS(allData));
-			//console.log(Object.keys(root.datosEldiario().partidos))
-			root.numeroDiputados(root.provinciaElegida().escaños())
-			var arrayKeys = Object.keys(root.datosEldiario().partidos)
-			for (var i = 0; i < arrayKeys.length; i++) {
-				var pivote = root.datosEldiario().partidos[arrayKeys[i]]
-				if (arrayKeys[i].indexOf('1503') > -1)
-					root.partidosPoliticos.push(new partidoPolitico({nombre:pivote.sigla(),numeroVotos:0, identificador: arrayKeys[i],color:pivote.color()}))
-			};
-		   root.partidosPoliticos.sort(function(left, right) { return left.numeroVotos() == right.numeroVotos() ? 0 : (left.numeroVotos() < right.numeroVotos() ? 1 : -1) })
-			var resultados2015 = root.datosEldiario().resultados['1503']
-			var resultadosProvincia = resultados2015[root.provinciaElegida().id()]
-			for (var i = 0; i < root.partidosPoliticos().length; i++) {
-				var pivote = root.partidosPoliticos()[i]
-				var numVotos = resultadosProvincia[pivote.identificador()]
-				if (numVotos !== undefined)
-					numVotos = numVotos.votos()
-				else
-					numVotos = 0 
-				pivote.numeroVotos(numVotos)
-			};
-			root.creaYcalcula()
-		   root.partidosPoliticos.sort(function(left, right) { return left.numeroVotos() == right.numeroVotos() ? 0 : (left.numeroVotos() < right.numeroVotos() ? 1 : -1) })
-
-
-		})
-		root.addPartido = function(){
-			root.partidosPoliticos.push(new partidoPolitico({nombre:'',numeroVotos:0}))
-		}
-		root.actualizaVotos = function(){
-			var resultados2015 = root.datosEldiario().resultados['1503']
-			var resultadosProvincia = resultados2015[root.provinciaElegida().id()]
-			for (var i = 0; i < root.partidosPoliticos().length; i++) {
-				var pivote = root.partidosPoliticos()[i]
-				var numVotos = resultadosProvincia[pivote.identificador()]
-				if (numVotos !== undefined)
-					numVotos = numVotos.votos()
-				else
-					numVotos = 0 
-				pivote.numeroVotos(numVotos)
-			};
-			root.creaYcalcula()
-			root.partidosPoliticos.sort(function(left, right) { return left.numeroVotos() == right.numeroVotos() ? 0 : (left.numeroVotos() < right.numeroVotos() ? 1 : -1) })
-		}
-		root.creaYcalcula = function(){
-			for (var i = 0; i < root.partidosPoliticos().length; i++) {
-				var pivote = root.partidosPoliticos()[i]
-				pivote.arrayVotos.removeAll()
-				for (var j = 1; j <= root.provinciaElegida().escaños(); j++) {
-					pivote.arrayVotos.push(new resultadospPartido({numeroDivision: j, numeroVotosRelativo: Math.round(pivote.numeroVotos()/j)}))
-				};
-			};
-			root.showTable(true)
-			for (var i = 0; i < root.provinciaElegida().escaños(); i++) {
-				var pivote2 = root.datosDado()[i]
-				pivote2.esElegido(true)
-
-			};
-		}
-	}
-	$(document).ready(function() {
-
-	ko.applyBindings(new gestionDhont())
-});
-</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/numeral.js/2.0.6/numeral.min.js"></script>
 </head>
 <body>
 	<div class="container">
+			<div id="app">
+					
 		<div class="col-lg-12 col-md-12 col-sm-12">
-			<h1>Sistema Dhont aplicado a las elecciones andaluzas 2015</h1>
-		</div>
-		<div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 col-lg-offset-3 col-md-offset-3">
-			<div class="row" data-bind="if: datosEldiario">
-				<div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
-				<label>Provincia</label>
-				<select class="form-control" data-bind="options: $root.datosEldiario().provincias(), optionsText: 'nombre', value: provinciaElegida, event:{ change: actualizaVotos}"></select>
-				</div>
-				<div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
-				<label>Numero de parlamentarios</label>
-				<input type="text" class="form-control" disabled data-bind="value: provinciaElegida().escaños">
-				</div>
-			</div>
-			<!--<div class="row" data-bind="if: datosEldiario">
-				<label data-bind="text: 'Numero de diputados de la provincia : ' + provinciaElegida().escaños()"></label>
-			</div>-->
-			<!--<div class="row">
-				<button class="btn btn-info" data-bind="click: creaYcalcula">Calcula reparto</button>
-			</div>-->
-			<!--<div data-bind="foreach: partidosPoliticos">
 			<div class="row">
-				<div class="col-lg-4">
-					<label>Partido politico</label>
-					<input type="text" class="form-control" data-bind="value: nombrePartido"/>
-					</div>
-					<div class="col-lg-4">
-					<label>Numero de votos</label>
-					<input type="text" class="form-control" data-bind="value: numeroVotos"/>
-				</div>
-				</div>
-			</div>-->
-			</br>
+					<h1>Calculo del sueldo</h1>
 			</div>
-			<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-			<div data-bind="if: showTable()">
-			<div class="table-responsive">
+			<div class="row">
+					<form>
+							<div class="form-group">
+									
+							<label for="salarioBruto">Salario bruto</label>
+							<input type="text" class="form-control" id="salarioBruto" v-model="datoBruto">
 
-			<table class="table table-bordered">
-				<tbody>
-					<tr>
-						<td></td>
-						<!--<td>Numero de votos</td>-->
-						<!-- ko foreach: partidosPoliticos()[0].arrayVotos -->
-							<td data-bind="text: $index()+1"></td>
-						<!-- /ko -->
-					</tr>
-					<!-- ko foreach: partidosPoliticos -->
-					<tr>
-							<td data-bind="text: nombrePartido"></td>
-							<!--<td data-bind="text: $data.arrayVotos()[0].numeroVotosRelativo"></td>-->
-							<!-- ko foreach: $data.arrayVotos -->
-								<td data-bind="text: numeroVotosRelativo,style: {backgroundColor: $data.esElegido() ? $parent.color():'#FFFFFF',color: $data.esElegido() ? '#FFFFFF':'#000000' }"></td>
-							<!-- /ko -->
-					</tr>
-					<!-- /ko -->
-				</tbody>
-			</table>
+							</div>
+							<div class="form-group">
+									
+							<label for="otrosIngresos">Otros ingresos</label>
+							<input type="text" class="form-control" id="otrosIngresos" v-model="datoOtrosIngresos">
+							
+							</div>
+							<div class="form-group">
+									<label for="staticEmail">Total bruto</label>
+									  <input type="text" readonly class="form-control-plaintext" id="staticEmail" v-model="totalBruto">
+							</div>
+						
+							
+					</form>
 			</div>
-			</div>
+			<div class="card">
+					<div class="card-header">
+					  Minimo familiar
+					</div>
+					<div class="card-body">
+							<label for="inputPassword" class="col-sm-2 col-form-label">Minimo personal</label>
+								  <input type="text" readonly class="form-control-plaintext" id="staticEmail" v-model="minimoPersonal">
+							<label for="inputPassword" class="col-sm-2 col-form-label">Descendientes</label>
+									<input type="text" readonly class="form-control-plaintext" id="staticEmail" v-model="descendientes">
+									<label for="inputPassword" class="col-sm-2 col-form-label">Ascendientes</label>
+									<input type="text" readonly class="form-control-plaintext" id="staticEmail" v-model="ascendientes">
+									<label for="inputPassword" class="col-sm-2 col-form-label">Minusvalias</label>
+									<input type="text" readonly class="form-control-plaintext" id="staticEmail" v-model="minusvalias">
+									<label for="inputPassword" class="col-sm-2 col-form-label">Minimo familiar</label>
+									<input type="text" readonly class="form-control-plaintext" id="staticEmail" v-model="minimoFamiliar">
+					</div>
+					
+				  </div>
+				  <div class="card">
+						<div class="card-header">
+						  Seguridad social
+						</div>
+						<div class="card-body">
+								<label for="inputPassword" class="col-sm-2 col-form-label">Rendimientos trabajo</label>
+									  <input type="text" readonly class="form-control-plaintext" id="staticEmail" v-model="rendimientosTrabajo">
+								<label for="inputPassword" class="col-sm-2 col-form-label">Seguridad social</label>
+										<input type="text" readonly class="form-control-plaintext" id="staticEmail" v-model="seguridadSocial">
+										<label for="inputPassword" class="col-sm-2 col-form-label">Otros</label>
+										<input type="text" readonly class="form-control-plaintext" id="staticEmail" v-model="otrosSeguridadSocial">
+										<label for="inputPassword" class="col-sm-2 col-form-label">Total deducciones</label>
+										<input type="text" readonly class="form-control-plaintext" id="staticEmail" v-model="totalDeduccionesSeguridadSocial">
+										<label for="inputPassword" class="col-sm-2 col-form-label">Base IRPF</label>
+										<input type="text" readonly class="form-control-plaintext" id="staticEmail" v-model="baseIrpf">
+						</div>
+						
+					  </div>
+					  <div class="card">
+							<div class="card-header">
+							  Porcentajes
+							</div>
+							<div class="card-body">
+									<label for="inputPassword" class="col-sm-2 col-form-label">Tipo IRPF</label>
+										  <input type="text" readonly class="form-control-plaintext" id="staticEmail" v-model="porcentajeIrpf">
+									<label for="inputPassword" class="col-sm-2 col-form-label">Tipo Seguridad Social</label>
+											<input type="text" readonly class="form-control-plaintext" id="staticEmail" v-model="tipoSS">
+											<label for="inputPassword" class="col-sm-2 col-form-label">Tipo total</label>
+											<input type="text" readonly class="form-control-plaintext" id="staticEmail" v-model="totalPorcentajeImpuestos">
+											
+							</div>
+							
+						  </div>
+						  <div class="card">
+								<div class="card-header">
+								  Sueldo
+								</div>
+								<div class="card-body">
+										<label for="inputPassword" class="col-sm-2 col-form-label">Mensualidad</label>
+											  <input type="text" readonly class="form-control-plaintext" id="staticEmail" v-model="totalMensual">
+										<label for="inputPassword" class="col-sm-2 col-form-label">Total anual</label>
+												<input type="text" readonly class="form-control-plaintext" id="staticEmail" v-model="totalAnualNeto">
+												
+												
+								</div>
+								
+							  </div>
 		</div>
 	</div>
+
+<script>
+	var app = new Vue({
+		el: '#app',
+		data: {
+		  listado: [],
+		  modalShown: false,
+		  filtros: '',
+		  //Constantes para 2017
+		  maximoSS: 3751.26,
+		  minimoSS: 1152.79,
+		  tipoSS: 0.0635,
+		  datoBruto : 20000,
+		  datoOtrosIngresos:0,
+		  //datos de los minimos personales
+		  minimoPersonal: 5550,
+		  descendientes: 0,
+		  ascendientes: 0,
+		  minusvalias: 0,
+		  //datos de la seguridad social
+		  rendimientosTrabajo: 2000,
+		  otrosSeguridadSocial:0,
+		  objetoRetenciones: {0:{min:0,max:12450,porcentaje:0.19},
+							  1:{min:12450,max:20200,porcentaje:0.24},
+							  2:{min:20200,max:35200,porcentaje:0.3},
+							  3:{min:35200,max:60000,porcentaje:0.37},
+							  4:{min:60000,max:0,porcentaje:0.45}},
+		 objetoRetenido:{0:{cantidad:0,retenido:0},
+						 1:{cantidad:0,retenido:0},
+						 2:{cantidad:0,retenido:0},
+						 3:{cantidad:0,retenido:0},
+						 4:{cantidad:0,retenido:0}}
+		},
+		computed: {
+    // a computed getter
+    totalBruto: function () {
+      // `this` points to the vm instance
+      return parseInt(this.datoBruto) + parseInt(this.datoOtrosIngresos) 
+	},
+	minimoFamiliar: function () {
+      // `this` points to the vm instance
+      return parseInt(this.minimoPersonal) + parseInt(this.descendientes)+ parseInt(this.ascendientes) + parseInt(this.minusvalias)
+	},
+	totalDeduccionesSeguridadSocial: function () {
+      // `this` points to the vm instance
+      return parseInt(this.rendimientosTrabajo) + parseInt(this.seguridadSocial)+ parseInt(this.otrosSeguridadSocial) 
+	},
+	baseIrpf: function () {
+      // `this` points to the vm instance
+      return this.totalBruto-this.totalDeduccionesSeguridadSocial
+	},
+	maximoAnualSS: function(){
+		return 12*this.maximoSS
+	},
+	minimoAnualSS: function(){
+		return 12*this.minimoSS
+	},
+	seguridadSocial: function(){
+		if (this.totalBruto >= this.maximoAnualSS)
+			return this.tipoSS * this.maximoAnualSS
+		if (this.totalBruto < this.maximoAnualSS && this.totalBruto >= this.minimoAnualSS)
+			return this.tipoSS * this.totalBruto
+		if (this.totalBruto < this.maximoAnualSS && this.totalBruto < this.minimoAnualSS)
+			return this.tipoSS * this.minimoAnualSS
+	},
+	deduccionesIrpf: function(){
+		var indice = 0;
+		var queda = this.baseIrpf;
+		var retenidoTotal = 0
+		while(queda!=0){
+			var diferencia = this.objetoRetenciones[indice].max-this.objetoRetenciones[indice].min
+			if (queda > diferencia){
+				this.objetoRetenido[indice].cantidad = diferencia
+				this.objetoRetenido[indice].retenido = diferencia * this.objetoRetenciones[indice].porcentaje				
+				queda = queda-diferencia
+			}else{
+				this.objetoRetenido[indice].cantidad = queda
+				this.objetoRetenido[indice].retenido = queda * this.objetoRetenciones[indice].porcentaje
+				queda = 0
+			}
+			retenidoTotal = retenidoTotal + this.objetoRetenido[indice].retenido
+			indice = indice +1
+		}
+		return retenidoTotal
+	},
+	libreIrpf: function(){
+		var indice = 0;
+		var queda = this.minimoFamiliar;
+		var diferencia = this.objetoRetenciones[0].max-this.objetoRetenciones[0].min
+		var retenido = queda * this.objetoRetenciones[0].porcentaje
+		return retenido
+	},
+	totalRetencionIrpf: function(){
+		return this.deduccionesIrpf-this.libreIrpf;
+	},
+	porcentajeIrpf: function(){
+		return this.totalRetencionIrpf/this.totalBruto
+	},
+	totalImpuestos: function(){
+		return this.totalRetencionIrpf+this.seguridadSocial
+	},
+	totalPorcentajeImpuestos: function(){
+		return this.totalImpuestos/this.totalBruto
+	},
+	totalAnualNeto: function(){
+		return ((1-this.totalPorcentajeImpuestos)*this.totalBruto)
+	},
+	totalMensual: function(){
+		return numeral(this.totalAnualNeto/12).format('0,0[.]00 €')
+	}
+	
+
+  },
+		  methods:{
+		  toggleModal() {
+			return document.getElementById('myModal').modal('show');
+		  
+		  }
+		  }
+	  })
+</script>	  
 </body>
 </html>

@@ -21,6 +21,11 @@
 <script src="http://knockoutjs.com/downloads/knockout-3.3.0.js"></script>
 <script src="knockout.mapping.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/numeral.js/2.0.6/numeral.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/numbro/1.11.0/languages.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/numbro/1.11.0/numbro.min.js"></script>
+<script src="https://code.highcharts.com/highcharts.js"></script>
+
 </head>
 <body>
 	<div class="container">
@@ -46,7 +51,7 @@
 							</div>
 							<div class="form-group">
 									<label for="staticEmail">Total bruto</label>
-									  <input type="text" readonly class="form-control-plaintext" id="staticEmail" v-model="totalBruto">
+									  <input type="text" readonly class="form-control-plaintext" id="staticEmail" v-bind:value="totalBruto | moneda">
 							</div>
 						
 							
@@ -58,15 +63,15 @@
 					</div>
 					<div class="card-body">
 							<label for="inputPassword" class="col-sm-2 col-form-label">Minimo personal</label>
-								  <input type="text" readonly class="form-control-plaintext" id="staticEmail" v-model="minimoPersonal">
+								  <input type="text" readonly class="form-control-plaintext" id="staticEmail" v-bind:value="minimoPersonal | moneda">
 							<label for="inputPassword" class="col-sm-2 col-form-label">Descendientes</label>
-									<input type="text" readonly class="form-control-plaintext" id="staticEmail" v-model="descendientes">
+									<input type="text" readonly class="form-control-plaintext" id="staticEmail" v-bind:value="descendientes | moneda">
 									<label for="inputPassword" class="col-sm-2 col-form-label">Ascendientes</label>
-									<input type="text" readonly class="form-control-plaintext" id="staticEmail" v-model="ascendientes">
+									<input type="text" readonly class="form-control-plaintext" id="staticEmail" v-bind:value="ascendientes | moneda">
 									<label for="inputPassword" class="col-sm-2 col-form-label">Minusvalias</label>
-									<input type="text" readonly class="form-control-plaintext" id="staticEmail" v-model="minusvalias">
+									<input type="text" readonly class="form-control-plaintext" id="staticEmail" v-bind:value="minusvalias | moneda">
 									<label for="inputPassword" class="col-sm-2 col-form-label">Minimo familiar</label>
-									<input type="text" readonly class="form-control-plaintext" id="staticEmail" v-model="minimoFamiliar">
+									<input type="text" readonly class="form-control-plaintext" id="staticEmail" v-bind:value="minimoFamiliar | moneda">
 					</div>
 					
 				  </div>
@@ -76,15 +81,15 @@
 						</div>
 						<div class="card-body">
 								<label for="inputPassword" class="col-sm-2 col-form-label">Rendimientos trabajo</label>
-									  <input type="text" readonly class="form-control-plaintext" id="staticEmail" v-model="rendimientosTrabajo">
+									  <input type="text" readonly class="form-control-plaintext" id="staticEmail" v-bind:value="rendimientosTrabajo| moneda">
 								<label for="inputPassword" class="col-sm-2 col-form-label">Seguridad social</label>
-										<input type="text" readonly class="form-control-plaintext" id="staticEmail" v-model="seguridadSocial">
+										<input type="text" readonly class="form-control-plaintext" id="staticEmail" v-bind:value="seguridadSocial| moneda">
 										<label for="inputPassword" class="col-sm-2 col-form-label">Otros</label>
-										<input type="text" readonly class="form-control-plaintext" id="staticEmail" v-model="otrosSeguridadSocial">
+										<input type="text" readonly class="form-control-plaintext" id="staticEmail" v-bind:value="otrosSeguridadSocial| moneda">
 										<label for="inputPassword" class="col-sm-2 col-form-label">Total deducciones</label>
-										<input type="text" readonly class="form-control-plaintext" id="staticEmail" v-model="totalDeduccionesSeguridadSocial">
+										<input type="text" readonly class="form-control-plaintext" id="staticEmail" v-bind:value="totalDeduccionesSeguridadSocial| moneda">
 										<label for="inputPassword" class="col-sm-2 col-form-label">Base IRPF</label>
-										<input type="text" readonly class="form-control-plaintext" id="staticEmail" v-model="baseIrpf">
+										<input type="text" readonly class="form-control-plaintext" id="staticEmail" v-bind:value="baseIrpf| moneda">
 						</div>
 						
 					  </div>
@@ -94,11 +99,11 @@
 							</div>
 							<div class="card-body">
 									<label for="inputPassword" class="col-sm-2 col-form-label">Tipo IRPF</label>
-										  <input type="text" readonly class="form-control-plaintext" id="staticEmail" v-model="porcentajeIrpf">
+										  <input type="text" readonly class="form-control-plaintext" id="staticEmail" v-bind:value="porcentajeIrpf | porcentaje">
 									<label for="inputPassword" class="col-sm-2 col-form-label">Tipo Seguridad Social</label>
-											<input type="text" readonly class="form-control-plaintext" id="staticEmail" v-model="tipoSS">
+											<input type="text" readonly class="form-control-plaintext" id="staticEmail" v-bind:value="tipoSS | porcentaje">
 											<label for="inputPassword" class="col-sm-2 col-form-label">Tipo total</label>
-											<input type="text" readonly class="form-control-plaintext" id="staticEmail" v-model="totalPorcentajeImpuestos">
+											<input type="text" readonly class="form-control-plaintext" id="staticEmail" v-bind:value="totalPorcentajeImpuestos | porcentaje">
 											
 							</div>
 							
@@ -109,14 +114,24 @@
 								</div>
 								<div class="card-body">
 										<label for="inputPassword" class="col-sm-2 col-form-label">Mensualidad</label>
-											  <input type="text" readonly class="form-control-plaintext" id="staticEmail" v-model="totalMensual">
+											  <input type="text" readonly class="form-control-plaintext" id="staticEmail" v-bind:value="totalMensual | moneda">
 										<label for="inputPassword" class="col-sm-2 col-form-label">Total anual</label>
-												<input type="text" readonly class="form-control-plaintext" id="staticEmail" v-model="totalAnualNeto">
+												<input type="text" readonly class="form-control-plaintext" id="staticEmail" v-bind:value="totalAnualNeto | moneda">
 												
 												
 								</div>
 								
 							  </div>
+							  <div class="card">
+									<div class="card-header">
+									  Graficas
+									</div>
+									<div class="card-body">
+											<div id='grafica1'></div>
+													
+									</div>
+									
+								  </div>
 		</div>
 	</div>
 
@@ -227,11 +242,63 @@
 		return ((1-this.totalPorcentajeImpuestos)*this.totalBruto)
 	},
 	totalMensual: function(){
-		return numeral(this.totalAnualNeto/12).format('0,0[.]00 €')
+		return this.totalAnualNeto/12
 	}
 	
 
   },
+  beforeCreate: function(){
+	numeral.register('locale', 'fr', {
+		delimiters: {
+			thousands: ' ',
+			decimal: ','
+		},
+		abbreviations: {
+			thousand: 'k',
+			million: 'm',
+			billion: 'b',
+			trillion: 't'
+		},
+		ordinal : function (number) {
+			return number === 1 ? 'er' : 'ème';
+		},
+		currency: {
+			symbol: '€'
+		}
+		
+	});
+	numeral.locale('fr');
+  },
+  mounted: function(){
+	Highcharts.chart('grafica1', {
+		chart: {
+			plotBackgroundColor: null,
+			plotBorderWidth: null,
+			plotShadow: false,
+			type: 'pie'
+		},
+		series: [{
+			data: [{
+				name: 'Salario',
+				y: 100-(100*this.porcentajeIrpf)-this.tipoSS*100
+			}, {
+				name: 'IRPF',
+				y: this.porcentajeIrpf*100,
+			}, {
+				name: 'Seguridad social',
+				y: this.tipoSS*100}
+]
+		}]
+	});
+  },
+  filters: {
+  moneda: function (value) {
+	return numeral(value).format('0,0[.]00 $');
+  },
+  porcentaje: function(value){
+	  return numeral(value).format('0.00%');
+  }
+},
 		  methods:{
 		  toggleModal() {
 			return document.getElementById('myModal').modal('show');

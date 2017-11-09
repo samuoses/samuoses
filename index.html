@@ -25,6 +25,7 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/numbro/1.11.0/numbro.min.js"></script>
 <script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://unpkg.com/vue-highcharts/dist/vue-highcharts.min.js"></script>
 
 </head>
 <body>
@@ -127,8 +128,8 @@
 									  Graficas
 									</div>
 									<div class="card-body">
-											<div id='grafica1'></div>
-													
+											<highcharts :options="opcionesGrafica" ref="highcharts"></highcharts>
+											
 									</div>
 									
 								  </div>
@@ -136,6 +137,8 @@
 	</div>
 
 <script>
+	Vue.use(VueHighcharts);
+
 	var app = new Vue({
 		el: '#app',
 		data: {
@@ -160,12 +163,13 @@
 							  1:{min:12450,max:20200,porcentaje:0.24},
 							  2:{min:20200,max:35200,porcentaje:0.3},
 							  3:{min:35200,max:60000,porcentaje:0.37},
-							  4:{min:60000,max:0,porcentaje:0.45}},
+							  4:{min:60000,max: Number.MAX_SAFE_INTEGER ,porcentaje:0.45}},
 		 objetoRetenido:{0:{cantidad:0,retenido:0},
 						 1:{cantidad:0,retenido:0},
 						 2:{cantidad:0,retenido:0},
 						 3:{cantidad:0,retenido:0},
-						 4:{cantidad:0,retenido:0}}
+						 4:{cantidad:0,retenido:0}},
+
 		},
 		computed: {
     // a computed getter
@@ -243,7 +247,29 @@
 	},
 	totalMensual: function(){
 		return this.totalAnualNeto/12
+	},
+	opcionesGrafica: function(){
+	return { chart: {
+			plotBackgroundColor: null,
+			plotBorderWidth: null,
+			plotShadow: false,
+			type: 'pie'
+		},
+		series: [{
+			data: [{
+				name: 'Salario',
+				y: 100-(100*this.porcentajeIrpf)-(this.totalPorcentajeImpuestos-this.porcentajeIrpf)*100
+			}, {
+				name: 'IRPF',
+				y: this.porcentajeIrpf*100,
+			}, {
+				name: 'Seguridad social',
+				y: (this.totalPorcentajeImpuestos-this.porcentajeIrpf)*100}
+]
+		}]
 	}
+}
+
 	
 
   },
@@ -270,26 +296,6 @@
 	numeral.locale('fr');
   },
   mounted: function(){
-	Highcharts.chart('grafica1', {
-		chart: {
-			plotBackgroundColor: null,
-			plotBorderWidth: null,
-			plotShadow: false,
-			type: 'pie'
-		},
-		series: [{
-			data: [{
-				name: 'Salario',
-				y: 100-(100*this.porcentajeIrpf)-this.tipoSS*100
-			}, {
-				name: 'IRPF',
-				y: this.porcentajeIrpf*100,
-			}, {
-				name: 'Seguridad social',
-				y: this.tipoSS*100}
-]
-		}]
-	});
   },
   filters: {
   moneda: function (value) {

@@ -143,6 +143,17 @@
 										</div>
 										
 									  </div>
+									  <div class="card">
+										<div class="card-header">
+										  Graficas
+										</div>
+										<div class="card-body">
+												<highcharts :options="opcionesPoblacionPorcentaje" ref="highcharts"></highcharts>
+												
+										</div>
+										
+									  </div>
+									  
 		</div>
 	</div>
 
@@ -169,6 +180,8 @@
 		  //datos de la seguridad social
 		  rendimientosTrabajo: 2000,
 		  otrosSeguridadSocial:0,
+		  //datos asalariados españa 2016
+		  numeroAsalariados: 18340000,
 		  objetoRetenciones: {0:{min:0,max:12450,porcentaje:0.19},
 							  1:{min:12450,max:20200,porcentaje:0.24},
 							  2:{min:20200,max:35200,porcentaje:0.3},
@@ -409,6 +422,25 @@
 			}, {
 				name: 'Seguridad social',
 				y: (this.totalPorcentajeImpuestos-this.porcentajeIrpf)*100}
+]
+		}]
+	}
+},
+opcionesPoblacionPorcentaje: function(){
+	return { chart: {
+			plotBackgroundColor: null,
+			plotBorderWidth: null,
+			plotShadow: false,
+			type: 'pie'
+		},
+		series: [{
+			data: [{
+				name: parseInt((this.numeroAsalariados * this.poblacionMenor)/100) + ' personas cobran menos que tu',
+				y: this.poblacionMenor,
+			}, {
+ 				name: parseInt((this.numeroAsalariados * (100-this.poblacionMenor))/100) + ' personas cobran mas que tu',
+				y: 100-this.poblacionMenor,
+			}
 ]
 		}]
 	}
